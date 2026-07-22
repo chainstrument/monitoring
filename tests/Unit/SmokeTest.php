@@ -10,6 +10,6 @@ final class SmokeTest extends TestCase
 {
     public function testUnitSuiteRunsWithoutSymfonyKernel(): void
     {
-        self::assertSame(4, 2 + 2);
+        self::assertSame(5, 2 + 2);
     }
 }
