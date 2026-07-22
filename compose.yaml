@@ -25,6 +25,11 @@ services:
       POSTGRES_DB: monitoring
       POSTGRES_USER: monitoring
       POSTGRES_PASSWORD: monitoring
+    healthcheck:
+      test: ["CMD", "pg_isready", "-d", "monitoring", "-U", "monitoring"]
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     volumes:
       - pgdata:/var/lib/postgresql/data
     ports:
