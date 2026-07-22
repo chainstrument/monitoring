@@ -15,6 +15,13 @@ security:
             # Ensure dev tools and static assets are always allowed
             pattern: ^/(_profiler|_wdt|assets|build)/
             security: false
+        api:
+            # Firewall API sans état ; aucune authenticator pour l'instant
+            # (arrivera à l'Epic 09 avec les tokens API). Un utilisateur non
+            # authentifié se voit simplement refuser l'accès via access_control
+            # ci-dessous (401, comportement par défaut d'un firewall stateless).
+            pattern: ^/api
+            stateless: true
         main:
             lazy: true
             provider: app_user_provider
@@ -29,8 +36,10 @@ security:
 
     # Note: Only the *first* matching rule is applied
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+        # /health (Epic 09) doit rester public même une fois sous /api.
+        - { path: ^/health, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: ROLE_USER }
+        - { path: ^/dashboard, roles: ROLE_USER }
 
 when@test:
     security:

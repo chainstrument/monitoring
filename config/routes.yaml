@@ -9,3 +9,12 @@
 
 controllers:
     resource: routing.controllers
+
+when@test:
+    # Routes factices utilisées uniquement pour tester la configuration
+    # d'access_control (US-02.4) avant que les vraies routes /dashboard
+    # (Epic 07) et /api (Epic 09) n'existent. Jamais chargées hors de
+    # l'environnement de test.
+    test_probes:
+        resource: '../tests/Fixtures/Controller/'
+        type: attribute
