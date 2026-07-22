@@ -7,6 +7,7 @@ parameters:
     level: max
     paths:
         - src
+        - tests
     symfony:
         containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
     ignoreErrors:
@@ -14,3 +15,7 @@ parameters:
             # Appelée par symfony/runtime via réflexion (convention MicroKernelTrait), jamais en PHP direct.
             message: '#Method App\\Kernel::getAllowedEnvs\(\) is unused\.#'
             path: src/Kernel.php
+        -
+            # Garde de compatibilité générée par le recipe symfony/test-pack, conservée telle quelle.
+            message: '#Call to function method_exists\(\) with .*Dotenv.* and .bootEnv. will always evaluate to true\.#'
+            path: tests/bootstrap.php

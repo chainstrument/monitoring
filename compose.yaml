@@ -6,8 +6,6 @@ services:
       target: php_fpm
     volumes:
       - .:/app
-    environment:
-      APP_ENV: dev
 
   nginx:
     image: nginx:1.27-alpine
@@ -42,8 +40,6 @@ services:
       target: worker
     volumes:
       - .:/app
-    environment:
-      APP_ENV: dev
     depends_on:
       - postgres
     # Pas de "restart" tant que le worker n'exécute pas de vraie commande
