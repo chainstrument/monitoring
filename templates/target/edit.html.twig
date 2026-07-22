@@ -1,0 +1,8 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier {{ target.name }}{% endblock %}
+
+{% block body %}
+    <h1>Modifier "{{ target.name }}"</h1>
+    {% include 'target/_form.html.twig' %}
+{% endblock %}

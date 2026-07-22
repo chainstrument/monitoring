@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Cibles{% endblock %}
+
+{% block body %}
+    <h1>Cibles surveillées</h1>
+
+    {% for message in app.flashes('success') %}
+        <div class="flash-success">{{ message }}</div>
+    {% endfor %}
+
+    <p><a href="{{ path('target_new') }}">+ Nouvelle cible</a></p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Adresse</th>
+                <th>Tags</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for target in targets %}
+                <tr>
+                    <td>{{ target.name }}</td>
+                    <td>{{ target.type.label }}</td>
+                    <td>{{ target.identifier }}</td>
+                    <td>{{ target.tags|join(', ') }}</td>
+                    <td>
+                        <a href="{{ path('target_edit', {id: target.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('target_delete', {id: target.id}) }}" style="display:inline">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete-target-' ~ target.id) }}">
+                            <button type="submit" onclick="return confirm('Supprimer cette cible ?')">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="5">Aucune cible pour l'instant.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if totalPages > 1 %}
+        <nav>
+            {% for p in 1..totalPages %}
+                {% if p == page %}
+                    <strong>{{ p }}</strong>
+                {% else %}
+                    <a href="{{ path('target_index', {page: p}) }}">{{ p }}</a>
+                {% endif %}
+            {% endfor %}
+        </nav>
+    {% endif %}
+{% endblock %}
