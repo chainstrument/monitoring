@@ -1,0 +1,49 @@
+services:
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: php_fpm
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: dev
+
+  nginx:
+    image: nginx:1.27-alpine
+    ports:
+      - "8081:80"
+    volumes:
+      - ./public:/app/public:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - php
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: monitoring
+      POSTGRES_USER: monitoring
+      POSTGRES_PASSWORD: monitoring
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5434:5432"
+
+  worker:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+      target: worker
+    volumes:
+      - .:/app
+    environment:
+      APP_ENV: dev
+    depends_on:
+      - postgres
+    # Pas de "restart" tant que le worker n'exécute pas de vraie commande
+    # Messenger (Epic 05) : évite une boucle de redémarrage inutile.
+    restart: "no"
+
+volumes:
+  pgdata:

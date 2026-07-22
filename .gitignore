@@ -8,3 +8,7 @@
 /var/
 /vendor/
 ###< symfony/framework-bundle ###
+
+###> docker ###
+docker-compose.override.yml
+###< docker ###
