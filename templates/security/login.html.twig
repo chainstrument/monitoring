@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion{% endblock %}
+
+{% block body %}
+    <form method="post">
+        <h1>Connexion</h1>
+
+        {% if error %}
+            {# Pas d'i18n en V1 : le message reste en anglais (fourni par symfony/security-core). #}
+            <div class="error">{{ error.messageKey }}</div>
+        {% endif %}
+
+        <label for="inputEmail">Email</label>
+        <input type="email" value="{{ last_username }}" name="email" id="inputEmail" required autofocus>
+
+        <label for="inputPassword">Mot de passe</label>
+        <input type="password" name="password" id="inputPassword" required>
+
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+
+        <button type="submit">Se connecter</button>
+    </form>
+{% endblock %}
