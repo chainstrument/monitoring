@@ -26,7 +26,10 @@ jobs:
 
     env:
       APP_ENV: test
-      DATABASE_URL: "postgresql://monitoring:monitoring@127.0.0.1:5432/monitoring_test?serverVersion=16&charset=utf8"
+      # Doctrine ajoute le suffixe "_test" (config/packages/doctrine.yaml, when@test) : le nom de
+      # base ici doit être "monitoring" pour se résoudre en "monitoring_test", qui est la base
+      # réellement créée par le service postgres ci-dessous.
+      DATABASE_URL: "postgresql://monitoring:monitoring@127.0.0.1:5432/monitoring?serverVersion=16&charset=utf8"
 
     steps:
       - uses: actions/checkout@v4
@@ -70,6 +73,9 @@ jobs:
 
       - name: PHP-CS-Fixer (dry-run)
         run: composer cs-check
+
+      - name: Run migrations (test database)
+        run: php bin/console doctrine:migrations:migrate --no-interaction
 
       - name: PHPUnit
         run: bin/phpunit
