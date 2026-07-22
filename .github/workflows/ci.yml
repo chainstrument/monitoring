@@ -60,6 +60,11 @@ jobs:
       - name: Lint container
         run: php bin/console lint:container
 
+      - name: Warm up dev cache
+        # phpstan-symfony a besoin du dump XML du container (var/cache/dev),
+        # généré ici car non commité (dossier var/ gitignored).
+        run: php bin/console cache:warmup --env=dev
+
       - name: PHPStan
         run: composer phpstan
 
