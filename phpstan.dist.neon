@@ -19,3 +19,8 @@ parameters:
             # Garde de compatibilité générée par le recipe symfony/test-pack, conservée telle quelle.
             message: '#Call to function method_exists\(\) with .*Dotenv.* and .bootEnv. will always evaluate to true\.#'
             path: tests/bootstrap.php
+        -
+            # Le stub PHPStan de UserInterface::getUserIdentifier() est plus strict (non-empty-string)
+            # que l'interface PHP réelle (string). $email est garanti non-vide par le VO Email en amont.
+            message: '#Method App\\Infrastructure\\Doctrine\\Entity\\User::getUserIdentifier\(\) should return non-empty-string but returns string\.#'
+            path: src/Infrastructure/Doctrine/Entity/User.php
