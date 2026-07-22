@@ -58,7 +58,10 @@
         ],
         "post-update-cmd": [
             "@auto-scripts"
-        ]
+        ],
+        "cs-fix": "php-cs-fixer fix",
+        "cs-check": "php-cs-fixer fix --dry-run --diff",
+        "phpstan": "phpstan analyse"
     },
     "conflict": {
         "symfony/symfony": "*"
@@ -68,5 +71,11 @@
             "allow-contrib": false,
             "require": "8.1.*"
         }
+    },
+    "require-dev": {
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.2",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0"
     }
 }

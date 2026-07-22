@@ -1,0 +1,16 @@
+includes:
+    - vendor/phpstan/phpstan-symfony/extension.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-doctrine/rules.neon
+
+parameters:
+    level: max
+    paths:
+        - src
+    symfony:
+        containerXmlPath: var/cache/dev/App_KernelDevDebugContainer.xml
+    ignoreErrors:
+        -
+            # Appelée par symfony/runtime via réflexion (convention MicroKernelTrait), jamais en PHP direct.
+            message: '#Method App\\Kernel::getAllowedEnvs\(\) is unused\.#'
+            path: src/Kernel.php
