@@ -17,6 +17,9 @@ FROM base AS php_fpm
 
 FROM base AS worker
 
-# Deviendra "php bin/console messenger:consume async -vv" une fois
-# symfony/messenger installé (Epic 05 — Moteur d'exécution des checks).
-CMD ["php", "-v"]
+# "async" exécute les sondes (ExecuteProbeMessage), "scheduler_default"
+# fait tourner le Scheduler (déclenche le tick CheckDueProbesMessage
+# toutes les 10s, voir ProbeSchedule). --time-limit redémarre le worker
+# périodiquement (évite les fuites mémoire d'un process PHP long-lived) ;
+# Docker le relance aussitôt via "restart: unless-stopped" (compose.yaml).
+CMD ["php", "bin/console", "messenger:consume", "async", "scheduler_default", "--time-limit=3600", "-vv"]

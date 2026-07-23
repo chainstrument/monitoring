@@ -41,10 +41,9 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - postgres
-    # Pas de "restart" tant que le worker n'exécute pas de vraie commande
-    # Messenger (Epic 05) : évite une boucle de redémarrage inutile.
-    restart: "no"
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   pgdata:
