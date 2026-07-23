@@ -1,12 +1,21 @@
 framework:
     messenger:
-        # Uncomment this (and the failed transport below) to send failed messages to this transport for later handling.
-        # failure_transport: failed
+        # Après épuisement des tentatives sur "async", le message part sur ce
+        # transport plutôt que d'être silencieusement perdu (US-05.3) :
+        # consultable via bin/console messenger:failed:show.
+        failure_transport: failed
 
         transports:
             # https://symfony.com/doc/current/messenger.html#transport-configuration
-            async: '%env(MESSENGER_TRANSPORT_DSN)%'
-            # failed: 'doctrine://default?queue_name=failed'
+            async:
+                dsn: '%env(MESSENGER_TRANSPORT_DSN)%'
+                retry_strategy:
+                    # Backoff exponentiel borné : 1s, 2s, 4s puis abandon (vers "failed").
+                    max_retries: 3
+                    delay: 1000
+                    multiplier: 2
+                    max_delay: 10000
+            failed: 'doctrine://default?queue_name=failed'
 
         routing:
             App\Application\Probe\ExecuteProbeMessage: async
