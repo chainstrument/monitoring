@@ -162,7 +162,10 @@ final class TargetController extends AbstractController
             ->andWhere('r.checkedAt >= :since')
             ->setParameter('probe', $probe)
             ->setParameter('since', $since)
+            // checkedAt est à la seconde près (TIMESTAMP(0)) : tri secondaire
+            // par id pour un ordre chronologique déterministe.
             ->orderBy('r.checkedAt', 'ASC')
+            ->addOrderBy('r.id', 'ASC')
             ->getQuery()
             ->getResult();
 

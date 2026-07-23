@@ -59,9 +59,12 @@ final readonly class IncidentStateUpdater
      */
     private function recentStatusesNewestFirst(Probe $probe): array
     {
+        // checkedAt est stocké à la seconde près (TIMESTAMP(0)) : plusieurs
+        // résultats créés dans la même seconde ont le même checkedAt, d'où le
+        // tri secondaire par id pour un ordre "plus récent d'abord" déterministe.
         $results = $this->entityManager->getRepository(ProbeResult::class)->findBy(
             ['probe' => $probe],
-            ['checkedAt' => 'DESC'],
+            ['checkedAt' => 'DESC', 'id' => 'DESC'],
             $this->incidentDetector->consecutiveFailureThreshold,
         );
 

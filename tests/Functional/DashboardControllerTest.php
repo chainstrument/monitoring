@@ -82,6 +82,33 @@ final class DashboardControllerTest extends WebTestCase
         self::assertSelectorTextNotContains('table', 'Cible filtre website');
     }
 
+    public function testTheRefreshEndpointReturnsAnUpdatedFragmentReflectingNewData(): void
+    {
+        $client = static::createClient();
+        $this->login($client);
+        $entityManager = static::getContainer()->get(EntityManagerInterface::class);
+
+        $target = Target::create('Cible refresh', TargetType::Website, 'https://refresh.example.com');
+        $entityManager->persist($target);
+        $entityManager->flush();
+
+        $client->request('GET', '/dashboard/refresh');
+        self::assertResponseIsSuccessful();
+        self::assertSelectorTextContains('body', 'Cible refresh');
+        // Un fragment, pas une page complète.
+        self::assertSelectorNotExists('html head title');
+
+        $probe = $this->makeHttpProbe($target);
+        $entityManager->persist($probe);
+        $entityManager->flush();
+        $entityManager->persist(ProbeResult::record($probe, ProbeExecutionResult::success(42)));
+        $entityManager->flush();
+
+        $client->request('GET', '/dashboard/refresh');
+
+        self::assertSelectorTextContains('body', '42 ms');
+    }
+
     private function makeHttpProbe(Target $target): Probe
     {
         return Probe::http($target, new HttpProbeConfig(new Url($target->identifier)));

@@ -58,7 +58,9 @@ final readonly class TargetDashboardQuery
                 FROM probe_result pr
                 INNER JOIN probe p ON p.id = pr.probe_id
                 WHERE p.target_id = t.id
-                ORDER BY pr.checked_at DESC
+                -- checked_at est à la seconde près (TIMESTAMP(0)) : tri
+                -- secondaire par id pour départager les résultats simultanés.
+                ORDER BY pr.checked_at DESC, pr.id DESC
                 LIMIT 1
             ) last_result ON true
             {$where}

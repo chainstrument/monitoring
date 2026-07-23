@@ -1,0 +1,30 @@
+<table>
+    <thead>
+        <tr>
+            <th>Statut</th>
+            <th>Nom</th>
+            <th>Type</th>
+            <th>Adresse</th>
+            <th>Latence</th>
+            <th>Dernière vérification</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for target in targets %}
+            <tr>
+                <td><span class="status-badge status-{{ target.displayStatus }}">{{ target.displayStatus|upper }}</span></td>
+                <td>{{ target.name }}</td>
+                <td>{{ target.type.label }}</td>
+                <td>{{ target.identifier }}</td>
+                <td>{{ target.lastLatencyMs is not null ? target.lastLatencyMs ~ ' ms' : '—' }}</td>
+                <td>{{ target.lastCheckedAt is not null ? target.lastCheckedAt|date('d/m/Y H:i:s') : 'jamais' }}</td>
+                <td><a href="{{ path('target_show', {id: target.id}) }}">Détail</a></td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="7">Aucune cible pour l'instant. <a href="{{ path('target_new') }}">En créer une</a>.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
