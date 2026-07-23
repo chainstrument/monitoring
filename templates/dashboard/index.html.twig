@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    <style>
+        .status-badge { display: inline-block; padding: 0.2em 0.6em; border-radius: 4px; color: #fff; font-size: 0.85em; }
+        .status-up { background: #2e7d32; }
+        .status-down { background: #c62828; }
+        .status-unknown { background: #757575; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h1>Dashboard</h1>
+
+    <form method="get">
+        <label for="tag-filter">Tag</label>
+        <input type="text" id="tag-filter" name="tag" value="{{ tag }}">
+
+        <label for="type-filter">Type</label>
+        <select id="type-filter" name="type">
+            <option value="">Tous</option>
+            {% for choice in types %}
+                <option value="{{ choice.value }}" {{ type == choice ? 'selected' }}>{{ choice.label }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit">Filtrer</button>
+        {% if tag or type %}
+            <a href="{{ path('dashboard_index') }}">Réinitialiser</a>
+        {% endif %}
+    </form>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Statut</th>
+                <th>Nom</th>
+                <th>Type</th>
+                <th>Adresse</th>
+                <th>Latence</th>
+                <th>Dernière vérification</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for target in targets %}
+                <tr>
+                    <td><span class="status-badge status-{{ target.displayStatus }}">{{ target.displayStatus|upper }}</span></td>
+                    <td>{{ target.name }}</td>
+                    <td>{{ target.type.label }}</td>
+                    <td>{{ target.identifier }}</td>
+                    <td>{{ target.lastLatencyMs is not null ? target.lastLatencyMs ~ ' ms' : '—' }}</td>
+                    <td>{{ target.lastCheckedAt is not null ? target.lastCheckedAt|date('d/m/Y H:i:s') : 'jamais' }}</td>
+                    <td><a href="{{ path('target_show', {id: target.id}) }}">Détail</a></td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="7">Aucune cible pour l'instant. <a href="{{ path('target_new') }}">En créer une</a>.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

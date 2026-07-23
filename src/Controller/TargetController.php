@@ -4,8 +4,11 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Domain\Probe\ProbeResultStatus;
 use App\Form\TargetFormData;
 use App\Form\TargetFormType;
+use App\Infrastructure\Doctrine\Entity\Probe;
+use App\Infrastructure\Doctrine\Entity\ProbeResult;
 use App\Infrastructure\Doctrine\Entity\Target;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\Pagination\Paginator;
@@ -56,6 +59,26 @@ final class TargetController extends AbstractController
             'page' => $page,
             'totalPages' => (int) max(1, ceil($totalItems / self::PER_PAGE)),
             'tag' => $tag,
+        ]);
+    }
+
+    #[Route('/{id}', name: 'target_show', requirements: ['id' => '\d+'], methods: ['GET'])]
+    public function show(Target $target, Request $request): Response
+    {
+        $period = 'week' === $request->query->getString('period', 'day') ? 'week' : 'day';
+        $since = new \DateTimeImmutable('week' === $period ? '-7 days' : '-24 hours');
+
+        $probes = $this->entityManager->getRepository(Probe::class)->findBy(['target' => $target]);
+
+        $histories = array_map(
+            fn (Probe $probe): array => $this->probeHistory($probe, $since),
+            $probes,
+        );
+
+        return $this->render('target/show.html.twig', [
+            'target' => $target,
+            'histories' => $histories,
+            'period' => $period,
         ]);
     }
 
@@ -126,5 +149,41 @@ final class TargetController extends AbstractController
         }
 
         return $this->redirectToRoute('target_index');
+    }
+
+    /**
+     * @return array{probe: Probe, results: list<ProbeResult>, uptime: ?float, chartLabels: string, chartData: string}
+     */
+    private function probeHistory(Probe $probe, \DateTimeImmutable $since): array
+    {
+        /** @var list<ProbeResult> $results */
+        $results = $this->entityManager->getRepository(ProbeResult::class)->createQueryBuilder('r')
+            ->andWhere('r.probe = :probe')
+            ->andWhere('r.checkedAt >= :since')
+            ->setParameter('probe', $probe)
+            ->setParameter('since', $since)
+            ->orderBy('r.checkedAt', 'ASC')
+            ->getQuery()
+            ->getResult();
+
+        $total = \count($results);
+        $successCount = \count(array_filter(
+            $results,
+            static fn (ProbeResult $result): bool => ProbeResultStatus::Success === $result->status,
+        ));
+
+        return [
+            'probe' => $probe,
+            'results' => $results,
+            'uptime' => $total > 0 ? round($successCount / $total * 100, 2) : null,
+            'chartLabels' => json_encode(array_map(
+                static fn (ProbeResult $result): string => $result->checkedAt->format('d/m H:i:s'),
+                $results,
+            )) ?: '[]',
+            'chartData' => json_encode(array_map(
+                static fn (ProbeResult $result): ?int => $result->latencyMs,
+                $results,
+            )) ?: '[]',
+        ];
     }
 }

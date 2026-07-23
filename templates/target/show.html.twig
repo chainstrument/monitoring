@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ target.name }}{% endblock %}
+
+{% block javascripts %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+{% endblock %}
+
+{% block body %}
+    <p><a href="{{ path('dashboard_index') }}">&larr; Dashboard</a></p>
+    <h1>{{ target.name }}</h1>
+    <p>{{ target.type.label }} — {{ target.identifier }}</p>
+
+    <p>
+        Période :
+        <a href="{{ path('target_show', {id: target.id, period: 'day'}) }}">24h</a>
+        |
+        <a href="{{ path('target_show', {id: target.id, period: 'week'}) }}">7 jours</a>
+    </p>
+
+    {% for history in histories %}
+        <h2>Sonde {{ history.probe.type.value }}</h2>
+        <p>
+            Uptime sur la période :
+            {{ history.uptime is not null ? history.uptime ~ '%' : 'aucune donnée sur la période' }}
+        </p>
+
+        <canvas id="chart-{{ history.probe.id }}" height="80"></canvas>
+        <script>
+            new Chart(document.getElementById('chart-{{ history.probe.id }}'), {
+                type: 'line',
+                data: {
+                    labels: {{ history.chartLabels|raw }},
+                    datasets: [{
+                        label: 'Latence (ms)',
+                        data: {{ history.chartData|raw }},
+                        borderColor: '#1976d2',
+                        tension: 0.2,
+                    }],
+                },
+                options: { animation: false },
+            });
+        </script>
+
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Statut</th><th>Latence</th><th>Erreur</th></tr>
+            </thead>
+            <tbody>
+                {% for result in history.results|reverse %}
+                    <tr>
+                        <td>{{ result.checkedAt|date('d/m/Y H:i:s') }}</td>
+                        <td>{{ result.status.value }}</td>
+                        <td>{{ result.latencyMs is not null ? result.latencyMs ~ ' ms' : '—' }}</td>
+                        <td>{{ result.errorMessage }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4">Aucune donnée sur la période.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Aucune sonde configurée pour cette cible.</p>
+    {% endfor %}
+{% endblock %}
