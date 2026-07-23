@@ -35,6 +35,13 @@ class Probe
     #[ORM\Column]
     public private(set) array $config;
 
+    /**
+     * Fréquence d'exécution de la sonde. 60s par défaut : assez réactif pour
+     * un usage personnel sans bombarder les cibles surveillées.
+     */
+    #[ORM\Column]
+    public private(set) int $intervalSeconds;
+
     #[ORM\Column]
     public private(set) \DateTimeImmutable $createdAt;
 
@@ -42,26 +49,40 @@ class Probe
     {
     }
 
-    public static function http(Target $target, HttpProbeConfig $config): self
+    public static function http(Target $target, HttpProbeConfig $config, int $intervalSeconds = 60): self
     {
         $probe = new self();
         $probe->target = $target;
         $probe->type = ProbeType::Http;
         $probe->config = $config->toArray();
+        $probe->intervalSeconds = $intervalSeconds;
         $probe->createdAt = new \DateTimeImmutable();
 
         return $probe;
     }
 
-    public static function ping(Target $target, PingProbeConfig $config): self
+    public static function ping(Target $target, PingProbeConfig $config, int $intervalSeconds = 60): self
     {
         $probe = new self();
         $probe->target = $target;
         $probe->type = ProbeType::Ping;
         $probe->config = $config->toArray();
+        $probe->intervalSeconds = $intervalSeconds;
         $probe->createdAt = new \DateTimeImmutable();
 
         return $probe;
+    }
+
+    /**
+     * @param ?\DateTimeImmutable $lastCheckedAt dernière exécution connue (via l'historique ProbeResult), null si jamais exécutée
+     */
+    public function isDueAt(?\DateTimeImmutable $lastCheckedAt, \DateTimeImmutable $now): bool
+    {
+        if (null === $lastCheckedAt) {
+            return true;
+        }
+
+        return ($now->getTimestamp() - $lastCheckedAt->getTimestamp()) >= $this->intervalSeconds;
     }
 
     public function httpConfig(): HttpProbeConfig

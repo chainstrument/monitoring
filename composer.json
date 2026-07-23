@@ -19,6 +19,7 @@
         "symfony/http-client": "8.1.*",
         "symfony/messenger": "8.1.*",
         "symfony/runtime": "8.1.*",
+        "symfony/scheduler": "8.1.*",
         "symfony/security-bundle": "8.1.*",
         "symfony/twig-bundle": "8.1.*",
         "symfony/validator": "8.1.*",
