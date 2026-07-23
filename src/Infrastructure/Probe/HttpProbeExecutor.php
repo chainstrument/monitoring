@@ -8,9 +8,11 @@ use App\Domain\Probe\ProbeExecutorInterface;
 use App\Domain\Probe\ProbeResult;
 use App\Domain\Probe\ProbeType;
 use App\Infrastructure\Doctrine\Entity\Probe;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
+#[Autoconfigure(tags: ['app.probe_executor'])]
 final readonly class HttpProbeExecutor implements ProbeExecutorInterface
 {
     public function __construct(private HttpClientInterface $httpClient)

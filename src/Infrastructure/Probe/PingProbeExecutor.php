@@ -8,6 +8,7 @@ use App\Domain\Probe\ProbeExecutorInterface;
 use App\Domain\Probe\ProbeResult;
 use App\Domain\Probe\ProbeType;
 use App\Infrastructure\Doctrine\Entity\Probe;
+use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
 
 /**
  * Exécute une sonde "Ping" via une connexion TCP plutôt qu'un vrai ping
@@ -15,6 +16,7 @@ use App\Infrastructure\Doctrine\Entity\Probe;
  * indisponibles dans un conteneur Docker, alors qu'une connexion TCP sur le
  * port fourni est fiable et ne demande aucun privilège particulier.
  */
+#[Autoconfigure(tags: ['app.probe_executor'])]
 final class PingProbeExecutor implements ProbeExecutorInterface
 {
     public function supports(ProbeType $type): bool

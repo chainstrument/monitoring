@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Domain\Probe;
 
-enum ProbeResultStatus
+enum ProbeResultStatus: string
 {
-    case Success;
-    case Failure;
+    case Success = 'success';
+    case Failure = 'failure';
 }
