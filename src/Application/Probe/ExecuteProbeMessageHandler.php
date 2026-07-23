@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Application\Probe;
 
+use App\Application\Incident\IncidentStateUpdater;
 use App\Domain\Probe\ProbeExecutorInterface;
 use App\Domain\Probe\ProbeType;
 use App\Infrastructure\Doctrine\Entity\Probe;
@@ -22,6 +23,7 @@ final readonly class ExecuteProbeMessageHandler
         private EntityManagerInterface $entityManager,
         #[AutowireIterator('app.probe_executor')]
         private iterable $executors,
+        private IncidentStateUpdater $incidentStateUpdater,
     ) {
     }
 
@@ -39,6 +41,8 @@ final readonly class ExecuteProbeMessageHandler
 
         $this->entityManager->persist(ProbeResult::record($probe, $result));
         $this->entityManager->flush();
+
+        $this->incidentStateUpdater->updateFor($probe);
     }
 
     private function resolveExecutor(ProbeType $type): ProbeExecutorInterface
