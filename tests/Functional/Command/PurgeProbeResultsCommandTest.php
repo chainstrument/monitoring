@@ -23,7 +23,7 @@ final class PurgeProbeResultsCommandTest extends KernelTestCase
         $kernel = self::bootKernel();
         $entityManager = self::getContainer()->get(EntityManagerInterface::class);
 
-        $target = Target::create('Site vitrine', TargetType::Website, 'https://example.com');
+        $target = Target::create('Cible pour la purge', TargetType::Website, 'https://example.com');
         $probe = Probe::http($target, new HttpProbeConfig(new Url('https://example.com')));
         $entityManager->persist($target);
         $entityManager->persist($probe);
