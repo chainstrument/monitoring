@@ -24,3 +24,10 @@ parameters:
             # que l'interface PHP réelle (string). $email est garanti non-vide par le VO Email en amont.
             message: '#Method App\\Infrastructure\\Doctrine\\Entity\\User::getUserIdentifier\(\) should return non-empty-string but returns string\.#'
             path: src/Infrastructure/Doctrine/Entity/User.php
+        -
+            # La colonne "tags" est nullable en base (un tableau vide devient NULL,
+            # voir Doctrine\DBAL\Types\SimpleArrayType), mais convertToPHPValue()
+            # renvoie toujours un tableau (jamais null) : la propriété PHP n'est
+            # donc jamais réellement null, contrairement à ce que la colonne laisse supposer.
+            message: '#Property App\\Infrastructure\\Doctrine\\Entity\\Target::\$tags type mapping mismatch#'
+            path: src/Infrastructure/Doctrine/Entity/Target.php

@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Tests\Unit\Domain\Target;
+namespace App\Tests\Unit\Domain\Shared;
 
-use App\Domain\Target\Url;
+use App\Domain\Shared\Url;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Infrastructure\Doctrine\Entity;
 
-use App\Domain\Target\Hostname;
+use App\Domain\Shared\Hostname;
+use App\Domain\Shared\Url;
 use App\Domain\Target\TargetType;
-use App\Domain\Target\Url;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -44,7 +44,7 @@ class Target
      *
      * @var list<string>
      */
-    #[ORM\Column(type: 'simple_array')]
+    #[ORM\Column(type: 'simple_array', nullable: true)]
     public private(set) array $tags = [];
 
     #[ORM\Column]

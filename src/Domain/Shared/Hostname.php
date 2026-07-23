@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Domain\Target;
+namespace App\Domain\Shared;
 
 final readonly class Hostname
 {
