@@ -11,6 +11,15 @@
 
     <p><a href="{{ path('target_new') }}">+ Nouvelle cible</a></p>
 
+    <form method="get">
+        <label for="tag-filter">Filtrer par tag</label>
+        <input type="text" id="tag-filter" name="tag" value="{{ tag }}">
+        <button type="submit">Filtrer</button>
+        {% if tag %}
+            <a href="{{ path('target_index') }}">Réinitialiser</a>
+        {% endif %}
+    </form>
+
     <table>
         <thead>
             <tr>
@@ -27,7 +36,11 @@
                     <td>{{ target.name }}</td>
                     <td>{{ target.type.label }}</td>
                     <td>{{ target.identifier }}</td>
-                    <td>{{ target.tags|join(', ') }}</td>
+                    <td>
+                        {% for t in target.tags %}
+                            <a href="{{ path('target_index', {tag: t}) }}">{{ t }}</a>{{ not loop.last ? ', ' }}
+                        {% endfor %}
+                    </td>
                     <td>
                         <a href="{{ path('target_edit', {id: target.id}) }}">Modifier</a>
                         <form method="post" action="{{ path('target_delete', {id: target.id}) }}" style="display:inline">
@@ -50,7 +63,7 @@
                 {% if p == page %}
                     <strong>{{ p }}</strong>
                 {% else %}
-                    <a href="{{ path('target_index', {page: p}) }}">{{ p }}</a>
+                    <a href="{{ path('target_index', {page: p, tag: tag}) }}">{{ p }}</a>
                 {% endif %}
             {% endfor %}
         </nav>

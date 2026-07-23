@@ -28,10 +28,22 @@ final class TargetController extends AbstractController
     public function index(Request $request): Response
     {
         $page = max(1, $request->query->getInt('page', 1));
+        $tag = trim($request->query->getString('tag', ''));
 
         $queryBuilder = $this->entityManager->getRepository(Target::class)
             ->createQueryBuilder('t')
             ->orderBy('t.createdAt', 'DESC');
+
+        if ('' !== $tag) {
+            // Les tags sont stockés en texte simple séparé par des virgules (pas
+            // de relation Many-to-Many, voir Target::class). On encadre la
+            // colonne ET le motif recherché de virgules pour matcher un tag
+            // entier, sans faux positif sur un tag partiellement homonyme
+            // (ex. "prod" ne doit pas matcher "preprod").
+            $queryBuilder
+                ->andWhere("CONCAT(',', t.tags, ',') LIKE :tagPattern")
+                ->setParameter('tagPattern', '%,'.addcslashes($tag, '%_\\').',%');
+        }
 
         $totalItems = count(new Paginator($queryBuilder->getQuery()));
 
@@ -43,6 +55,7 @@ final class TargetController extends AbstractController
             'targets' => new Paginator($queryBuilder->getQuery()),
             'page' => $page,
             'totalPages' => (int) max(1, ceil($totalItems / self::PER_PAGE)),
+            'tag' => $tag,
         ]);
     }
 
@@ -57,7 +70,7 @@ final class TargetController extends AbstractController
             \assert(null !== $data->name && null !== $data->type && null !== $data->identifier);
 
             try {
-                $target = Target::create($data->name, $data->type, $data->identifier);
+                $target = Target::create($data->name, $data->type, $data->identifier, $data->tagsAsArray());
             } catch (\InvalidArgumentException $e) {
                 $form->get('identifier')->addError(new FormError($e->getMessage()));
 
@@ -87,6 +100,7 @@ final class TargetController extends AbstractController
             try {
                 $target->rename($data->name);
                 $target->changeIdentifier($data->type, $data->identifier);
+                $target->retag($data->tagsAsArray());
             } catch (\InvalidArgumentException $e) {
                 $form->get('identifier')->addError(new FormError($e->getMessage()));
 

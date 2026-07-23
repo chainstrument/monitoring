@@ -24,12 +24,46 @@ final class TargetControllerTest extends WebTestCase
             'target_form[name]' => 'Site vitrine',
             'target_form[type]' => 'website',
             'target_form[identifier]' => 'https://example.com',
+            'target_form[tags]' => 'prod, web',
         ]);
         $client->submit($form);
 
         self::assertResponseRedirects('/targets');
         $client->followRedirect();
         self::assertSelectorTextContains('body', 'Site vitrine');
+
+        $target = static::getContainer()->get(EntityManagerInterface::class)
+            ->getRepository(Target::class)->findOneBy(['name' => 'Site vitrine']);
+        self::assertNotNull($target);
+        self::assertSame(['prod', 'web'], $target->tags);
+    }
+
+    public function testFilteringByTagShowsOnlyMatchingTargets(): void
+    {
+        $client = static::createClient();
+        $this->login($client);
+
+        $uniqueTag = 'tag-'.uniqid();
+
+        $client->request('GET', '/targets/new');
+        $client->submit($client->getCrawler()->selectButton('Enregistrer')->form([
+            'target_form[name]' => 'Cible taguée',
+            'target_form[type]' => 'website',
+            'target_form[identifier]' => 'https://tagged.example.com',
+            'target_form[tags]' => $uniqueTag,
+        ]));
+
+        $client->request('GET', '/targets/new');
+        $client->submit($client->getCrawler()->selectButton('Enregistrer')->form([
+            'target_form[name]' => 'Cible non taguée',
+            'target_form[type]' => 'website',
+            'target_form[identifier]' => 'https://untagged.example.com',
+        ]));
+
+        $client->request('GET', '/targets', ['tag' => $uniqueTag]);
+
+        self::assertSelectorTextContains('table', 'Cible taguée');
+        self::assertSelectorTextNotContains('table', 'Cible non taguée');
     }
 
     public function testCreatingATargetWithMismatchedIdentifierRedisplaysFormWithError(): void

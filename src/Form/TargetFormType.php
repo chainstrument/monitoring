@@ -31,6 +31,10 @@ final class TargetFormType extends AbstractType
             ->add('identifier', TextType::class, [
                 'label' => 'Adresse (URL pour un site/une application, hostname ou IP pour un serveur)',
             ])
+            ->add('tags', TextType::class, [
+                'required' => false,
+                'label' => 'Tags (séparés par des virgules)',
+            ])
         ;
     }
 

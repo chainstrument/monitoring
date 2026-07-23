@@ -21,13 +21,31 @@ final class TargetFormData
     #[Assert\Length(max: 255)]
     public ?string $identifier = null;
 
+    public ?string $tags = null;
+
     public static function fromTarget(Target $target): self
     {
         $data = new self();
         $data->name = $target->name;
         $data->type = $target->type;
         $data->identifier = $target->identifier;
+        $data->tags = implode(', ', $target->tags);
 
         return $data;
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function tagsAsArray(): array
+    {
+        if (null === $this->tags || '' === trim($this->tags)) {
+            return [];
+        }
+
+        $tags = array_map(trim(...), explode(',', $this->tags));
+        $tags = array_filter($tags, static fn (string $tag): bool => '' !== $tag);
+
+        return array_values(array_unique($tags));
     }
 }

@@ -36,8 +36,15 @@ class Target
     #[ORM\Column(length: 255)]
     public private(set) string $identifier;
 
-    /** @var list<string> */
-    #[ORM\Column]
+    /**
+     * Stocké en texte simple (liste séparée par des virgules), pas en JSON
+     * natif : PostgreSQL n'autorise pas LIKE sur une colonne `json`, or le
+     * filtre par tag (US-03.3) en a besoin. Une colonne texte reste largement
+     * suffisante tant qu'on n'a pas de vraie relation Many-to-Many Tag.
+     *
+     * @var list<string>
+     */
+    #[ORM\Column(type: 'simple_array')]
     public private(set) array $tags = [];
 
     #[ORM\Column]
